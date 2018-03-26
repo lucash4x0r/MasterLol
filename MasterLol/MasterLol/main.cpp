@@ -13,6 +13,8 @@
 #include "sdk.hpp"
 #pragma comment(lib, "detours.lib")
 #include <d3d.h>
+#include <d3d9.h>
+#include <d3d9types.h>
 
 #include "hooks.h"
 
@@ -39,6 +41,9 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 
 		ObjectManager* objManager = (ObjectManager*)(lolBase + oObjectManager);
 
+        DWORD pCursor = *(DWORD*)(lolBase + oCursor);
+        Cursor* cursor = (Cursor*) (pCursor);
+
 		DWORD pLocalPlayer = *(DWORD*)(lolBase + oLocalPlayer);
 		LocalPlayerTemp = (cObject*)(pLocalPlayer);
 
@@ -60,19 +65,17 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 
 		while (!GetAsyncKeyState(VK_END))
 		{
-			if (GetAsyncKeyState(VK_PRIOR))//PAGE UP key
+			if (GetAsyncKeyState(0x43))//PAGE UP key
 			{
+                //cout << "Position : " << cursor->vPos.x << ", " << cursor->vPos.y << ", " << cursor->vPos.z << endl;
 				Vector* vec = new Vector();
-				vec->x = 566;
-				vec->y = 183;
-				vec->z = 556;
+				vec->x = cursor->vPos.x;
+				vec->y = cursor->vPos.y;
+				vec->z = cursor->vPos.z;
 				hook.callIssueOrder((DWORD)(lolBase + fnIssueOrder), LocalPlayerTemp, 2, vec, 0, 0, 0, 1);
-				//hkDrawCircle fn_drawcircle = (hkDrawCircle)(lolBase + fnDrawCircle);//);
 
-				//D3DCOLOR colorYellow = D3DCOLOR_RGBA(50, 50, 0, 1);
 
-				//fn_drawcircle(&LocalPlayer->vPos, (float)(615), (int*)&colorYellow, 0, 0, 0, 1);
-				//Sleep(250);
+				
 			}
 
 			if (GetAsyncKeyState(VK_HOME))
@@ -89,7 +92,7 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 				}
 			}
 
-			Sleep(250);
+			Sleep(150);
 		}
 
 		Beep(523, 250);

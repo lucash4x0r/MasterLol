@@ -1,5 +1,9 @@
 #include "hooks.h"
 
+#include <d3d.h>
+#include <d3d9.h>
+#include <d3d9types.h>
+
 using namespace std;
 
 DWORD DrawCircleAddr = 0;
@@ -14,6 +18,7 @@ void DrawCircle(Vector * position, float range, int * color, int a4, float a5, i
 	cout << "a6 : " << a6 << endl;
 	cout << "alpha : " << alpha << endl;*/
 #pragma endregion
+    //range *= 2;
 
 	_fnDrawCircle originalDrawCircle = (_fnDrawCircle)DrawCircleAddr;
 	return originalDrawCircle(position, range, color, a4, a5, a6, alpha); //a3 = color

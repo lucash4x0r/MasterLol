@@ -35,6 +35,15 @@ enum Teams
 	Neutral = 300
 };
 
+class Cursor
+{
+public:
+    char pad_0x0000[0x90]; //0x0000
+    Vector vPos; //0x0090 
+    char pad_0x009C[0x28]; //0x009C
+
+}; //Size=0x00C4
+
 class cObject
 {
 public:
