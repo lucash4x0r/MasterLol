@@ -92,7 +92,7 @@ void hooks::unHookIssueOrder()
 }
 
 void hooks::callIssueOrder(DWORD addr, cObject* Player, int dwOrder, Vector* TargetPos,
-	cObject* TargetPtr, bool attackLoc, bool isPassive, int NetWorkId) 
+	cObject* TargetPtr, bool attackLoc, bool isPassive, int NetWorkId)
 {
 	IssueOrderAddr = addr;
 	_fnIssueOrder originalIssueOrder = (_fnIssueOrder)IssueOrderAddr;

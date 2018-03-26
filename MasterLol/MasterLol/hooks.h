@@ -7,7 +7,7 @@ typedef void(__cdecl* _fnDrawCircle)(Vector * position, float range, int * color
 
 typedef signed int(__thiscall* _fnMainLoop) (int a1);
 
-typedef void(__fastcall* _fnIssueOrder)(cObject* Player, int dwOrder, Vector* TargetPos,
+typedef void(__thiscall* _fnIssueOrder)(cObject* Player, int dwOrder, Vector* TargetPos,
 									   cObject* TargetPtr, bool attackLoc, bool isPassive, int NetWorkId);
 
 class hooks
