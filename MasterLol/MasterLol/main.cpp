@@ -20,6 +20,7 @@ using namespace std;
 
 bool g_Unload = false;
 
+cObject* LocalPlayerTemp;
 
 DWORD WINAPI OnDllAttach(LPVOID base)
 {
@@ -32,13 +33,14 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 
 
 		DWORD lolBase = (DWORD)GetModuleHandle(NULL);
+
 		hooks hook = hooks();
 		hook.hookAll(lolBase);
 
 		ObjectManager* objManager = (ObjectManager*)(lolBase + oObjectManager);
 
 		DWORD pLocalPlayer = *(DWORD*)(lolBase + oLocalPlayer);
-		cObject* LocalPlayer = (cObject*)(pLocalPlayer);
+		LocalPlayerTemp = (cObject*)(pLocalPlayer);
 
 		cout << "League of Legends base is : ";
 		cout << showbase // show the 0x prefix
@@ -51,9 +53,9 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 		cout << "Max Entities : " << objManager->MAX_ENTITY << endl;
 
 		cout << "===== LocalPlayer ===== : " << endl;
-		cout << "Type : " << Entity::GetObjectType(LocalPlayer) << endl;
-		cout << "Position : " << LocalPlayer->vPos.x << ", " << LocalPlayer->vPos.y << ", " << LocalPlayer->vPos.z << endl;
-		cout << "Hp : " << LocalPlayer->currHp << "\t Max Hp : " << LocalPlayer->maxHp << endl << endl;
+		cout << "Type : " << Entity::GetObjectType(LocalPlayerTemp) << endl;
+		cout << "Position : " << LocalPlayerTemp->vPos.x << ", " << LocalPlayerTemp->vPos.y << ", " << LocalPlayerTemp->vPos.z << endl;
+		cout << "Hp : " << LocalPlayerTemp->currHp << "\t Max Hp : " << LocalPlayerTemp->maxHp << endl << endl;
 
 
 		while (!GetAsyncKeyState(VK_END))
@@ -64,7 +66,7 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 				vec->x = 566;
 				vec->y = 183;
 				vec->z = 556;
-				hook.callIssueOrder((DWORD)(lolBase + fnIssueOrder), LocalPlayer, 2, vec, 0, 0, 0, 1);
+				hook.callIssueOrder((DWORD)(lolBase + fnIssueOrder), LocalPlayerTemp, 2, vec, 0, 0, 0, 1);
 				//hkDrawCircle fn_drawcircle = (hkDrawCircle)(lolBase + fnDrawCircle);//);
 
 				//D3DCOLOR colorYellow = D3DCOLOR_RGBA(50, 50, 0, 1);

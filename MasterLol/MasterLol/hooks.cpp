@@ -1,6 +1,5 @@
 #include "hooks.h"
 
-
 using namespace std;
 
 DWORD DrawCircleAddr = 0;
@@ -21,20 +20,21 @@ void DrawCircle(Vector * position, float range, int * color, int a4, float a5, i
 }
 
 DWORD IssueOrderAddr = 0;
-void IssueOrder(cObject* Player, int dwOrder, Vector* TargetPos,
+cObject* LocalPlayer;
+void IssueOrder(/*cObject* localPlayer, */int dwOrder, Vector* TargetPos,
 	cObject* TargetPtr, bool attackLoc, bool isPassive, int NetWorkId)
 {
 #pragma region PRINT_ISSUE_ORDER_ARGS
-	/*cout << "Player : " << &Player << endl;
+	cout << "Player : " << &LocalPlayer << endl;
 	cout << "dwOrder : " << dwOrder << endl;
-	cout << "TargetPos : " << TargetPos->x << TargetPos->y << TargetPos->z << endl;
+	cout << "TargetPos : " << TargetPos->x << ", " << TargetPos->y << ", " << TargetPos->z << endl;
 	cout << "attackLoc : " << attackLoc << endl;
 	cout << "isPassive : " << isPassive << endl;
-	cout << "isNetworked : " << isNetworked << endl;*/
+	cout << "NetWorkId : " << NetWorkId << endl;
 #pragma endregion
 
 	_fnIssueOrder originalIssueOrder = (_fnIssueOrder)IssueOrderAddr;
-	return originalIssueOrder(Player, dwOrder, TargetPos, TargetPtr, attackLoc, isPassive, NetWorkId);
+	return originalIssueOrder(LocalPlayer, dwOrder, TargetPos, TargetPtr, attackLoc, isPassive, NetWorkId);
 }
 
 hooks::hooks()
@@ -71,6 +71,10 @@ void hooks::unHookDrawCircle()
 void hooks::hookIssueOrder(DWORD base)
 {
 	IssueOrderAddr = (DWORD)(base + fnIssueOrder);
+
+	DWORD pLocalPlayer = *(DWORD*)(base + oLocalPlayer);
+	LocalPlayer = (cObject*)(pLocalPlayer);
+
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 	// this will hook the function
@@ -98,11 +102,12 @@ void hooks::callIssueOrder(DWORD addr, cObject* Player, int dwOrder, Vector* Tar
 void hooks::hookAll(DWORD base)
 {
 	hookDrawCircle(base);
-	hookIssueOrder(base);
+	//hookIssueOrder(base);
 }
 
 void hooks::unHookAll()
 {
 	unHookDrawCircle();
+	//unHookIssueOrder();
 }
 
