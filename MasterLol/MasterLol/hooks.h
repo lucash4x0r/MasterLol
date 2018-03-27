@@ -5,7 +5,7 @@
 
 typedef void(__cdecl* _fnDrawCircle)(Vector * position, float range, int * color, int a4, float a5, int a6, float alpha);
 
-typedef signed int(__thiscall* _fnMainLoop) (int a1);
+typedef int(__stdcall* _fnMainLoop) (int a1);
 
 typedef void(__thiscall* _fnIssueOrder)(cObject* Player, int dwOrder, Vector* TargetPos,
 									   cObject* TargetPtr, bool attackLoc, bool isPassive, int NetWorkId);
@@ -22,6 +22,9 @@ public:
 	void unHookIssueOrder();
 	void callIssueOrder(DWORD addr, cObject* Player, int dwOrder, Vector* TargetPos,
 		cObject* TargetPtr, bool attackLoc, bool isPassive, int NetWorkId);
+
+	void hookMainLoop(DWORD base);
+	void unHookMainLoop();
 
 	void hookAll(DWORD base);
 	void unHookAll();

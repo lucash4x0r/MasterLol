@@ -19,6 +19,9 @@
 #define oCursor 0x1571784 
 #define oGameTime 0x21BF73C
 
+//IssueOrder : 81 EC B0 ?? ?? ?? 53 8B D9 C7
+//MaiLoop    : 83 EC 08 53 8B D9 89 5C 24 04
+
 enum ObjectType
 {
 	Other = 3073,

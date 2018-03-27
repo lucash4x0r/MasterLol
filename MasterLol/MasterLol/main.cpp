@@ -73,9 +73,6 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 				vec->y = cursor->vPos.y;
 				vec->z = cursor->vPos.z;
 				hook.callIssueOrder((DWORD)(lolBase + fnIssueOrder), LocalPlayerTemp, 2, vec, 0, 0, 0, 1);
-
-
-				
 			}
 
 			if (GetAsyncKeyState(VK_HOME))

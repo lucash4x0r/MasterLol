@@ -42,6 +42,13 @@ void IssueOrder(/*cObject* localPlayer, */int dwOrder, Vector* TargetPos,
 	return originalIssueOrder(LocalPlayer, dwOrder, TargetPos, TargetPtr, attackLoc, isPassive, NetWorkId);
 }
 
+DWORD MainLoopAddr = 0;
+int MainLoop(int a1)
+{
+	_fnMainLoop originalMainLoop = (_fnMainLoop)MainLoopAddr;
+	return originalMainLoop(a1);
+}
+
 hooks::hooks()
 {
 }
@@ -104,15 +111,37 @@ void hooks::callIssueOrder(DWORD addr, cObject* Player, int dwOrder, Vector* Tar
 	return originalIssueOrder(Player, dwOrder, TargetPos, TargetPtr, attackLoc, isPassive, NetWorkId);
 }
 
+void hooks::hookMainLoop(DWORD base)
+{
+	MainLoopAddr = (DWORD)(base + fnMainLoop);
+
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+	// this will hook the function
+	DetourAttach(&(LPVOID&)MainLoopAddr, &MainLoop);
+	DetourTransactionCommit();
+}
+
+void hooks::unHookMainLoop()
+{
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+	// this will hook the function
+	DetourDetach(&(LPVOID&)MainLoopAddr, &MainLoop);
+	DetourTransactionCommit();
+}
+
 void hooks::hookAll(DWORD base)
 {
 	hookDrawCircle(base);
+	hookMainLoop(base);
 	//hookIssueOrder(base);
 }
 
 void hooks::unHookAll()
 {
 	unHookDrawCircle();
+	unHookMainLoop();
 	//unHookIssueOrder();
 }
 
