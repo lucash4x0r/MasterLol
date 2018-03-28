@@ -2,6 +2,9 @@
 #include "helpers/utils.hpp"
 #include "detours.h"
 #include "sdk.hpp"
+#include <d3d.h>
+#include <d3d9.h>
+#include <d3d9types.h>
 
 typedef void(__cdecl* _fnDrawCircle)(Vector * position, float range, int * color, int a4, float a5, int a6, float alpha);
 

@@ -41,8 +41,8 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 
 		ObjectManager* objManager = (ObjectManager*)(lolBase + oObjectManager);
 
-        DWORD pCursor = *(DWORD*)(lolBase + oCursor);
-        Cursor* cursor = (Cursor*) (pCursor);
+		DWORD pCursor = *(DWORD*)(lolBase + oCursor);
+		Cursor* cursor = (Cursor*)(pCursor);
 
 		DWORD pLocalPlayer = *(DWORD*)(lolBase + oLocalPlayer);
 		LocalPlayerTemp = (cObject*)(pLocalPlayer);
@@ -58,21 +58,40 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 		cout << "Max Entities : " << objManager->MAX_ENTITY << endl;
 
 		cout << "===== LocalPlayer ===== : " << endl;
-		cout << "Type : " << Entity::GetObjectType(LocalPlayerTemp) << endl;
+		cout << "Type : " << EntityUtils::GetObjectType(LocalPlayerTemp) << endl;
 		cout << "Position : " << LocalPlayerTemp->vPos.x << ", " << LocalPlayerTemp->vPos.y << ", " << LocalPlayerTemp->vPos.z << endl;
 		cout << "Hp : " << LocalPlayerTemp->currHp << "\t Max Hp : " << LocalPlayerTemp->maxHp << endl << endl;
+
+		cout << "===== Cursor : =====" << endl;
+		cout << "Position : " << cursor->vPos.x << ", " << cursor->vPos.y << ", " << cursor->vPos.z << endl;
 
 
 		while (!GetAsyncKeyState(VK_END))
 		{
-			if (GetAsyncKeyState(0x43))//PAGE UP key
+			if (GetAsyncKeyState(0x43))//C
 			{
-                //cout << "Position : " << cursor->vPos.x << ", " << cursor->vPos.y << ", " << cursor->vPos.z << endl;
-				Vector* vec = new Vector();
-				vec->x = cursor->vPos.x;
-				vec->y = cursor->vPos.y;
-				vec->z = cursor->vPos.z;
-				hook.callIssueOrder((DWORD)(lolBase + fnIssueOrder), LocalPlayerTemp, 2, vec, 0, 0, 0, 1);
+				hook.callIssueOrder((DWORD)(lolBase + fnIssueOrder), LocalPlayerTemp, 2, &cursor->vPos, 0, 0, 0, 1);
+				cout << "Windup Time : " << EntityUtils::CalcWindup() << endl;
+			}
+
+			if (GetAsyncKeyState(VK_V))
+			{
+				EntityUtils::bestEntity closestObject;
+				closestObject.isNew = false;
+				vector<cObject*> listObjects = EntityUtils::getObjects(lolBase);
+				closestObject = EntityUtils::getClosestObject(listObjects, true, true);
+				if (closestObject.object != 0 && closestObject.isNew && EntityUtils::IsTargetable(closestObject.object))
+				{
+					cout << endl << " ==ClosestObject ==" << endl;
+					cout << "Distance from player : " << closestObject.distance << "m" << endl;
+					EntityUtils::PrintObject(closestObject.object);
+					hook.callIssueOrder((DWORD)(lolBase + fnIssueOrder), LocalPlayerTemp, MoveType::attack,
+						&closestObject.object->vPos, closestObject.object, 0, 0, 1);
+				}
+				else
+				{
+					hook.callIssueOrder((DWORD)(lolBase + fnIssueOrder), LocalPlayerTemp, 2, &cursor->vPos, 0, 0, 0, 1);
+				}
 			}
 
 			if (GetAsyncKeyState(VK_HOME))
@@ -82,9 +101,9 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 				{
 					cObject* obj = ObjManager[i];
 					if ((DWORD)obj != 0)
-						if (Entity::IsObject(obj))
+						if (EntityUtils::IsObject(obj))
 						{
-							Entity::PrintObject(obj);
+							EntityUtils::PrintObject(obj);
 						}
 				}
 			}

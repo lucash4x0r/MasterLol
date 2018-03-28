@@ -1,8 +1,5 @@
 #include "hooks.h"
 
-#include <d3d.h>
-#include <d3d9.h>
-#include <d3d9types.h>
 
 using namespace std;
 
@@ -134,14 +131,14 @@ void hooks::unHookMainLoop()
 void hooks::hookAll(DWORD base)
 {
 	hookDrawCircle(base);
-	hookMainLoop(base);
+	//hookMainLoop(base);
 	//hookIssueOrder(base);
 }
 
 void hooks::unHookAll()
 {
 	unHookDrawCircle();
-	unHookMainLoop();
+	//unHookMainLoop();
 	//unHookIssueOrder();
 }
 

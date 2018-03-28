@@ -1,3 +1,4 @@
+/*
 #pragma once
 #include <vector>
 //#include "sdk.hpp"
@@ -7,6 +8,6 @@ public:
     Entity();
     ~Entity();
 
-    //std::vector<cObject> listEntity();
+    std::vector<int> listEntity();
 };
-
+*/
