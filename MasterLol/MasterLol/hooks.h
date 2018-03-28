@@ -1,7 +1,7 @@
 #pragma once
 #include "helpers/utils.hpp"
 #include "detours.h"
-#include "sdk.hpp"
+#include "sdk.h"
 #include <d3d.h>
 #include <d3d9.h>
 #include <d3d9types.h>

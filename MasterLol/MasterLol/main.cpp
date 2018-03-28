@@ -10,13 +10,14 @@
 #include <stdio.h>
 #include <iomanip>
 
-#include "sdk.hpp"
 #pragma comment(lib, "detours.lib")
 #include <d3d.h>
 #include <d3d9.h>
 #include <d3d9types.h>
 
+#include "sdk.h"
 #include "hooks.h"
+#include"Entity.h"
 
 using namespace std;
 
@@ -58,7 +59,7 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 		cout << "Max Entities : " << objManager->MAX_ENTITY << endl;
 
 		cout << "===== LocalPlayer ===== : " << endl;
-		cout << "Type : " << EntityUtils::GetObjectType(LocalPlayerTemp) << endl;
+		cout << "Type : " << Entity::GetObjectType(LocalPlayerTemp) << endl;
 		cout << "Position : " << LocalPlayerTemp->vPos.x << ", " << LocalPlayerTemp->vPos.y << ", " << LocalPlayerTemp->vPos.z << endl;
 		cout << "Hp : " << LocalPlayerTemp->currHp << "\t Max Hp : " << LocalPlayerTemp->maxHp << endl << endl;
 
@@ -71,20 +72,20 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 			if (GetAsyncKeyState(0x43))//C
 			{
 				hook.callIssueOrder((DWORD)(lolBase + fnIssueOrder), LocalPlayerTemp, 2, &cursor->vPos, 0, 0, 0, 1);
-				cout << "Windup Time : " << EntityUtils::CalcWindup() << endl;
+				//cout << "Windup Time : " << EntityUtils::CalcWindup() << endl;
 			}
 
 			if (GetAsyncKeyState(VK_V))
 			{
-				EntityUtils::bestEntity closestObject;
+				bestEntity closestObject;
 				closestObject.isNew = false;
-				vector<cObject*> listObjects = EntityUtils::getObjects(lolBase);
-				closestObject = EntityUtils::getClosestObject(listObjects, true, true);
-				if (closestObject.object != 0 && closestObject.isNew && EntityUtils::IsTargetable(closestObject.object))
+				vector<cObject*> listObjects = Entity::getObjects(lolBase);
+				closestObject = Entity::getClosestObject(listObjects, true, true);
+				if (closestObject.object != 0 && closestObject.isNew && Entity::IsTargetable(closestObject.object))
 				{
-					cout << endl << " ==ClosestObject ==" << endl;
-					cout << "Distance from player : " << closestObject.distance << "m" << endl;
-					EntityUtils::PrintObject(closestObject.object);
+					//cout << endl << " ==ClosestObject ==" << endl;
+					//cout << "Distance from player : " << closestObject.distance << "m" << endl;
+					Entity::PrintObject(closestObject.object);
 					hook.callIssueOrder((DWORD)(lolBase + fnIssueOrder), LocalPlayerTemp, MoveType::attack,
 						&closestObject.object->vPos, closestObject.object, 0, 0, 1);
 				}
@@ -101,9 +102,9 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 				{
 					cObject* obj = ObjManager[i];
 					if ((DWORD)obj != 0)
-						if (EntityUtils::IsObject(obj))
+						if (Entity::IsObject(obj))
 						{
-							EntityUtils::PrintObject(obj);
+							Entity::PrintObject(obj);
 						}
 				}
 			}
