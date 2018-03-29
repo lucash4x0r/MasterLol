@@ -2,12 +2,38 @@
 
 #define NOMINMAX
 #include <Windows.h>
+#include <stdio.h>
 #include <string>
 #include <initializer_list>
-#include "../valve_sdk/sdk.hpp"
+#include <vector>
+#include <iomanip>
+
+#include "..\sdk.h"
+#include "..\Entity.h"
+#include "..\hooks.h"
+#include <Psapi.h>
+#include <d3d9.h>
+
+
+
+
 
 namespace Utils
 {
+	extern DWORD LolBase;
+	extern DWORD pLocalPlayer;
+	extern DWORD pCursor;
+
+	void Init();
+	void Dump();
+
+	Cursor* getCursor();
+
+	void MoveTo(MoveType moveType, cObject* target);
+
+	void Test();
+	bool bCompare(const BYTE* pData, const BYTE* bMask, const char* szMask);
+	DWORD FindPattern(DWORD dwAddress, DWORD dwLen, BYTE *bMask, char * szMask);
     /*
      * @brief Create console
      *

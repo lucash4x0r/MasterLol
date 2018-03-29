@@ -1,17 +1,116 @@
+#define NOMINMAX
 #include "utils.hpp"
 
-#define NOMINMAX
-#include <Windows.h>
-#include <stdio.h>
-#include <string>
-#include <vector>
 
 HANDLE _out = NULL, _old_out = NULL;
 HANDLE _err = NULL, _old_err = NULL;
 HANDLE _in = NULL, _old_in = NULL;
 
+typedef HRESULT(__stdcall* fn_EndScene)(IDirect3DDevice* pdevice);
+fn_EndScene oEndScene;
+
 namespace Utils
 {
+	DWORD LolBase = 0;
+	DWORD pLocalPlayer = 0;
+	DWORD pCursor = 0;
+
+	void Init()
+	{
+		LolBase = (DWORD)GetModuleHandle(NULL);
+		pLocalPlayer = *(DWORD*)(Utils::LolBase + oLocalPlayer);
+		pCursor = *(DWORD*)(Utils::LolBase + oCursor);
+	}
+
+	void Dump()
+	{
+		cout << "League of Legends base is : ";
+		cout << showbase // show the 0x prefix
+			<< internal // fill between the prefix and the number
+			<< setfill('0'); // fill with 0s
+
+		cout << hex << Utils::LolBase << dec << endl << endl; //Print LolBase address
+
+		cObject* localPlayer = Entity::getLocalPlayer();
+		cout << "===== LocalPlayer ===== : " << endl;
+		cout << "Type : " << Entity::GetObjectType(localPlayer) << endl;
+		cout << "Position : " << localPlayer->vPos.x << ", " << localPlayer->vPos.y << ", " << localPlayer->vPos.z << endl;
+		cout << "Hp : " << localPlayer->currHp << "\t Max Hp : " << localPlayer->maxHp << endl << endl;
+
+		Cursor* cursor = Utils::getCursor();
+		cout << "===== Cursor : =====" << endl;
+		cout << "Position : " << cursor->vPos.x << ", " << cursor->vPos.y << ", " << cursor->vPos.z << endl;
+	}
+
+	Cursor* getCursor()
+	{
+		return (Cursor*)(Utils::pCursor);
+	}
+
+	void MoveTo(MoveType moveType, cObject* target)
+	{
+		switch (moveType)
+		{
+		case MoveType::move :
+			hooks::callIssueOrder((DWORD)(Utils::LolBase + fnIssueOrder), Entity::getLocalPlayer(), MoveType::move,
+				&getCursor()->vPos, 0, 0, 0, 1);
+			break;
+		case MoveType::attack :
+			hooks::callIssueOrder((DWORD)(Utils::LolBase + fnIssueOrder), Entity::getLocalPlayer(), MoveType::attack,
+				&target->vPos, target, 0, 0, 1);
+			break;
+		default:
+			break;
+		}
+	}
+
+	bool bCompare(const BYTE* pData, const BYTE* bMask, const char* szMask)
+	{
+		for (; *szMask; ++szMask, ++pData, ++bMask)
+			if (*szMask == 'x' && *pData != *bMask)
+				return false;
+
+		return (*szMask) == NULL;
+	}
+	DWORD FindPattern(DWORD dwAddress, DWORD dwLen, BYTE *bMask, char * szMask)
+	{
+		for (DWORD i = 0; i < dwLen; i++)
+			if (bCompare((BYTE*)(dwAddress + i), bMask, szMask))
+				return (DWORD)(dwAddress + i);
+
+		return 0;
+	}
+
+	HRESULT __stdcall Hooked_EndScene(IDirect3DDevice* pdevice)
+	{
+		return oEndScene(pdevice);
+	}
+
+	void Test()
+	{
+		DWORD EndSceneaddy = 0;
+		DWORD* vtbl = 0;
+		DWORD table = FindPattern((DWORD)GetModuleHandle(L"d3d9.dll"), 0x128000, (PBYTE)"\xC7\x06\x00\x00\x00\x00\x89\x86\x00\x00\x00\x00\x89\x86", "xx????xx????xx");
+		memcpy(&vtbl, (void*)(table + 2), 4);
+		EndSceneaddy = vtbl[42];
+
+		if (EndSceneaddy)
+		{
+			cout << endl << "EndSceneAddress : ";
+			cout <<hex
+				 << showbase // show the 0x prefix
+				 << internal // fill between the prefix and the number
+				 << setfill('0'); // fill with 0s
+			cout << EndSceneaddy << endl;
+
+			DetourTransactionBegin();
+			DetourUpdateThread(GetCurrentThread());
+			// this will hook the function
+			DetourAttach(&(LPVOID&)EndSceneaddy, &Hooked_EndScene);
+			DetourTransactionCommit();
+		}
+	}
+
     /*
      * @brief Create console
      *

@@ -3,8 +3,8 @@
 #include "detours.h"
 #include "sdk.h"
 #include <d3d.h>
-#include <d3d9.h>
 #include <d3d9types.h>
+#include <d3d9.h>
 
 typedef void(__cdecl* _fnDrawCircle)(Vector * position, float range, int * color, int a4, float a5, int a6, float alpha);
 
@@ -23,7 +23,7 @@ public:
 
 	void hookIssueOrder(DWORD base);
 	void unHookIssueOrder();
-	void callIssueOrder(DWORD addr, cObject* Player, int dwOrder, Vector* TargetPos,
+	static void callIssueOrder(DWORD addr, cObject* Player, int dwOrder, Vector* TargetPos,
 		cObject* TargetPtr, bool attackLoc, bool isPassive, int NetWorkId);
 
 	void hookMainLoop(DWORD base);

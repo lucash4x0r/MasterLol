@@ -2,20 +2,18 @@
 
 cObject* Entity::getLocalPlayer()
 {
-	DWORD	lolBase = (DWORD)GetModuleHandle(NULL);
-	DWORD	pLocalPlayer = *(DWORD*)(lolBase + oLocalPlayer);
-	return (cObject*)(pLocalPlayer);
+	return (cObject*)(Utils::pLocalPlayer);
 }
 
-//static double CalcAttackTime()
-//{
-//	return 1 / (getLocalPlayer()->dAttackSpeed);
-//}
-//
-//static double CalcWindup()
-//{
-//	return CalcAttackTime()*0.35;
-//}
+double Entity::CalcAttackTime()
+{
+	return 1 / (Entity::getLocalPlayer()->dAttackSpeed);
+}
+
+double Entity::CalcWindup()
+{
+	return CalcAttackTime()*0.35;
+}
 
 char* Entity::GetObjectType(cObject* object)
 {
@@ -51,13 +49,7 @@ bool Entity::IsInRange(cObject* obj)
 	return (localPlayer->fAttackRange >= (localPlayer->vPos - obj->vPos).Length());
 }
 
-void Entity::PrintObject(cObject* obj)
-{
-	std::cout << "===== obj ===== : " << std::endl;
-	std::cout << "Type : " << Entity::GetObjectType(obj) << std::endl;
-	std::cout << "Position : " << obj->vPos.x << ", " << obj->vPos.y << ", " << obj->vPos.z << std::endl;
-	std::cout << "Hp : " << obj->currHp << "\t Max Hp : " << obj->maxHp << std::endl << std::endl;
-}
+
 
 vector<cObject*> Entity::getObjects(DWORD base)
 {
@@ -108,4 +100,12 @@ bestEntity Entity::getClosestObject(std::vector<cObject*> listObjects, bool chec
 		}
 	}
 	return closestEntity;
+}
+
+void Entity::PrintObject(cObject* obj)
+{
+	std::cout << "===== obj ===== : " << std::endl;
+	std::cout << "Type : " << Entity::GetObjectType(obj) << std::endl;
+	std::cout << "Position : " << obj->vPos.x << ", " << obj->vPos.y << ", " << obj->vPos.z << std::endl;
+	std::cout << "Hp : " << obj->currHp << "\t Max Hp : " << obj->maxHp << std::endl << std::endl;
 }

@@ -17,13 +17,12 @@
 
 #include "sdk.h"
 #include "hooks.h"
+#include "helpers\utils.hpp"
 #include"Entity.h"
 
 using namespace std;
 
 bool g_Unload = false;
-
-cObject* LocalPlayerTemp;
 
 DWORD WINAPI OnDllAttach(LPVOID base)
 {
@@ -34,44 +33,19 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 #endif
 		cout << "Initialisation ..." << endl;
 
+		Utils::Init();
+		Utils::Dump();
 
-		DWORD lolBase = (DWORD)GetModuleHandle(NULL);
+		Utils::Test();
 
 		hooks hook = hooks();
-		hook.hookAll(lolBase);
+		hook.hookAll(Utils::LolBase);
 
-		ObjectManager* objManager = (ObjectManager*)(lolBase + oObjectManager);
-
-		DWORD pCursor = *(DWORD*)(lolBase + oCursor);
-		Cursor* cursor = (Cursor*)(pCursor);
-
-		DWORD pLocalPlayer = *(DWORD*)(lolBase + oLocalPlayer);
-		LocalPlayerTemp = (cObject*)(pLocalPlayer);
-
-		cout << "League of Legends base is : ";
-		cout << showbase // show the 0x prefix
-			<< internal // fill between the prefix and the number
-			<< setfill('0'); // fill with 0s
-
-		cout << hex << lolBase << dec << endl; //Print LolBase address
-
-		cout << "===== Object Manager =====" << endl;
-		cout << "Max Entities : " << objManager->MAX_ENTITY << endl;
-
-		cout << "===== LocalPlayer ===== : " << endl;
-		cout << "Type : " << Entity::GetObjectType(LocalPlayerTemp) << endl;
-		cout << "Position : " << LocalPlayerTemp->vPos.x << ", " << LocalPlayerTemp->vPos.y << ", " << LocalPlayerTemp->vPos.z << endl;
-		cout << "Hp : " << LocalPlayerTemp->currHp << "\t Max Hp : " << LocalPlayerTemp->maxHp << endl << endl;
-
-		cout << "===== Cursor : =====" << endl;
-		cout << "Position : " << cursor->vPos.x << ", " << cursor->vPos.y << ", " << cursor->vPos.z << endl;
-
-
-		while (!GetAsyncKeyState(VK_END))
+		while (!GetAsyncKeyState(VK_END)) //Panic key
 		{
-			if (GetAsyncKeyState(0x43))//C
+			if (GetAsyncKeyState(VK_C))//C
 			{
-				hook.callIssueOrder((DWORD)(lolBase + fnIssueOrder), LocalPlayerTemp, 2, &cursor->vPos, 0, 0, 0, 1);
+				Utils::MoveTo(MoveType::move, 0);
 				//cout << "Windup Time : " << EntityUtils::CalcWindup() << endl;
 			}
 
@@ -79,34 +53,23 @@ DWORD WINAPI OnDllAttach(LPVOID base)
 			{
 				bestEntity closestObject;
 				closestObject.isNew = false;
-				vector<cObject*> listObjects = Entity::getObjects(lolBase);
+				vector<cObject*> listObjects = Entity::getObjects(Utils::LolBase);
 				closestObject = Entity::getClosestObject(listObjects, true, true);
 				if (closestObject.object != 0 && closestObject.isNew && Entity::IsTargetable(closestObject.object))
 				{
-					//cout << endl << " ==ClosestObject ==" << endl;
-					//cout << "Distance from player : " << closestObject.distance << "m" << endl;
-					Entity::PrintObject(closestObject.object);
-					hook.callIssueOrder((DWORD)(lolBase + fnIssueOrder), LocalPlayerTemp, MoveType::attack,
-						&closestObject.object->vPos, closestObject.object, 0, 0, 1);
+					//Entity::PrintObject(closestObject.object);
+					Utils::MoveTo(MoveType::attack, closestObject.object);
 				}
 				else
 				{
-					hook.callIssueOrder((DWORD)(lolBase + fnIssueOrder), LocalPlayerTemp, 2, &cursor->vPos, 0, 0, 0, 1);
+					Utils::MoveTo(MoveType::move, 0);
 				}
 			}
 
 			if (GetAsyncKeyState(VK_HOME))
 			{
-				cObject** ObjManager = *(cObject***)(lolBase + oObjectManager);
-				for (int i = 0; i < 10000; ++i)
-				{
-					cObject* obj = ObjManager[i];
-					if ((DWORD)obj != 0)
-						if (Entity::IsObject(obj))
-						{
-							Entity::PrintObject(obj);
-						}
-				}
+				vector<cObject*> listObjects = Entity::getObjects(Utils::LolBase);
+				cout << endl << "Number of objects : " << listObjects.size() << endl;
 			}
 
 			Sleep(150);
